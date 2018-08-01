@@ -26,11 +26,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    //设置引导第一步
-    GuideCase *case1 = [XXWhatsNewGuide giveMeACaseWithKey:@"1"];
-    
+    // MARK: - 设置引导第一步
+    GuideCase *case1 = [XXWhatsNewGuide giveMeACaseWithKey:@"13"];
+    //指定某个view进行高亮
     GuideView *case1_gv1 = [case1 addViewByCloneView:self.imgView1];
-    
+    //在引导蒙板上添加视图
     UILabel *case1_lab = [[UILabel alloc] initWithFrame:CGRectMake(24, CGRectGetMaxY(case1_gv1.view.frame)+40, 150, 40)];
     case1_lab.text = @"这是引导说明";
     case1_lab.textColor = [UIColor whiteColor];
@@ -42,12 +42,12 @@
     case1_btn.backgroundColor = [UIColor blueColor];
     GuideView *case1_gv3 = [case1 addView:case1_btn];
     
-    //设置引导第二步
-    GuideCase *case2 = [XXWhatsNewGuide giveMeACaseWithKey:@"2"];
+    // MARK: - 设置引导第二步
+    GuideCase *case2 = [XXWhatsNewGuide giveMeACaseWithKey:@"14"];
     
     GuideView *case2_gv1 = [case2 addViewByCloneView:self.imgView1];
-    
-    [case2 hollowout:CGRectMake(CGRectGetMaxX(case2_gv1.view.frame)+20, CGRectGetMinY(case2_gv1.view.frame), 100, 30) type:(HollowoutTypeOval) radius:0];
+    //指定区域进行高亮
+    [case2 hollowout:CGRectMake(CGRectGetMaxX(case2_gv1.view.frame)+20, CGRectGetMinY(case2_gv1.view.frame), 160, 90) type:(HollowoutTypeOval) radius:0];
     
     UIImage *case2_img = [UIImage imageNamed:@"3"];
     GuideView *case2_gv2 = [case2 addViewWithImage:case2_img frame:CGRectMake(CGRectGetMinX(case2_gv1.view.frame), CGRectGetMaxY(case2_gv1.view.frame)+30, case2_img.size.width,  case2_img.size.height)];
@@ -58,9 +58,13 @@
     case2_btn.backgroundColor = [UIColor blueColor];
     GuideView *case2_gv3 = [case2 addView:case2_btn];
     
-    //设置引导动作
+    // MARK: - 设置引导动作
+    //点击下一步
     [case1_gv3 addActionForNextCase:case2];
+    //点击消失
     [case2_gv3 addActionForDismiss];
+    
+    // MARK: - 显示引导
     [case1 show];
 }
 
