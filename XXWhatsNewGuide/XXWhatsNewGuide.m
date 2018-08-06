@@ -38,7 +38,7 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
 
 @interface GuideCase()<GuideViewDelegate>
 
-@property (nonatomic, strong) UIView *maskView;
+@property (nonatomic, strong) GuideView *maskView;
 @property (nonatomic, strong) NSMutableArray<GuideView *> *subViews;
 @property (nonatomic, copy) NSString *key;
 
@@ -49,13 +49,22 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
 - (instancetype)init {
     if (self = [super init]) {
         self.maskView = ({
+            GuideView *gv = [[GuideView alloc] init];
             UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height)];
             view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
-            view;
+            [gv setValue:view forKey:@"view"];
+            [gv setValue:self forKey:@"delegate"];
+            gv;
         });
         self.subViews = @[].mutableCopy;
+        NSLog(@"GuideCase init-%@", self);
     }
     return self;
+}
+
+- (void)setMaskAlpha:(CGFloat)maskAlpha {
+    _maskAlpha = maskAlpha;
+    self.maskView.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:maskAlpha];
 }
 
 - (void)show {
@@ -67,33 +76,41 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
     //防止self被释放
     objc_setAssociatedObject(self.maskView, &MaskViewKey, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
-    [[[UIApplication sharedApplication] keyWindow] addSubview:self.maskView];
+    [[[UIApplication sharedApplication] keyWindow] addSubview:self.maskView.view];
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:[NSString stringWithFormat:@"WNG_%@", self.key]];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)addFullScreenActionForDismiss {
+    [self.maskView addActionForDismiss];
+}
+
+- (void)addFullScreenActionForNextCase:(GuideCase *)nextCase {
+    [self.maskView addActionForNextCase:nextCase];
 }
 
 - (GuideView *)addViewByCloneView:(UIView *)originalView {
     CGRect rect = [originalView.superview convertRect:originalView.frame toView:[UIApplication sharedApplication].keyWindow];
     UIImageView *imgView = [[UIImageView alloc] initWithFrame:rect];
     imgView.image = [self imageFromView:originalView];
-    [self.maskView addSubview:imgView];
+    [self.maskView.view addSubview:imgView];
     return NewGuideView(self, imgView);
 }
 
 - (GuideView *)addViewWithImage:(UIImage *)image frame:(CGRect)frame {
     UIImageView *imgView = [[UIImageView alloc] initWithFrame:frame];
     imgView.image = image;
-    [self.maskView addSubview:imgView];
+    [self.maskView.view addSubview:imgView];
     return NewGuideView(self, imgView);
 }
 
 - (GuideView *)addView:(UIView *)subView {
-    [self.maskView addSubview:subView];
+    [self.maskView.view addSubview:subView];
     return NewGuideView(self, subView);
 }
 
 - (void)hollowout:(CGRect)rect type:(HollowoutType)type radius:(CGFloat)radius {
-    UIBezierPath *layerPath = [UIBezierPath bezierPathWithRect:self.maskView.bounds];
+    UIBezierPath *layerPath = [UIBezierPath bezierPathWithRect:self.maskView.view.bounds];
     if (type == HollowoutTypeRectangle) {
         UIBezierPath *hwPath = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
         [layerPath appendPath:hwPath];
@@ -104,12 +121,12 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
     CAShapeLayer *hollowoutLayer = [CAShapeLayer layer];
     hollowoutLayer.path = layerPath.CGPath;
     hollowoutLayer.fillRule = kCAFillRuleEvenOdd;
-    self.maskView.layer.mask = hollowoutLayer;
+    self.maskView.view.layer.mask = hollowoutLayer;
 }
 
 #pragma mark - GuideViewDelegate
 - (void)guideViewActionForDismiss {
-    [self.maskView removeFromSuperview];
+    [self.maskView.view removeFromSuperview];
     objc_removeAssociatedObjects(self.maskView); //打破循环
 }
 
@@ -129,7 +146,7 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
 }
 
 - (void)dealloc {
-//    NSLog(@"GuideCase dealloc-%@", self);
+    NSLog(@"GuideCase dealloc-%@", self);
 }
 
 @end
@@ -143,6 +160,15 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
 @end
 
 @implementation GuideView
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        NSLog(@"GuideView init-%@", self);
+    }
+    return self;
+}
 
 
 - (void)addActionForDismiss {
@@ -171,7 +197,7 @@ FOUNDATION_STATIC_INLINE GuideView * NewGuideView(GuideCase *guideCase, UIView *
 }
 
 - (void)dealloc {
-//    NSLog(@"GuideView dealloc-%@", self);
+    NSLog(@"GuideView dealloc-%@", self);
 }
 
 @end

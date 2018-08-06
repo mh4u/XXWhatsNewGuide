@@ -19,7 +19,7 @@ typedef NS_ENUM(NSUInteger, HollowoutType) {
 NS_ASSUME_NONNULL_BEGIN
 @interface GuideView : NSObject
 
-@property (nonatomic, assign, readonly) UIView *view;
+@property (nonatomic, strong, readonly) UIView *view;
 
 /**
  点击消失
@@ -37,6 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface GuideCase : NSObject
+
+
+/**
+ 蒙版透明度，默认0.6
+ */
+@property (nonatomic, assign) CGFloat maskAlpha;
 
 /**
  添加视图内容的替身到蒙层上，不需要设置frame
@@ -76,6 +82,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 - (void)show;
+
+/**
+ 全屏点击消失
+ */
+- (void)addFullScreenActionForDismiss;
+
+
+/**
+  全屏点击显示下一步引导界面
+ 
+ @param nextCase nextCase
+ */
+- (void)addFullScreenActionForNextCase:(GuideCase *)nextCase;
 
 @end
 

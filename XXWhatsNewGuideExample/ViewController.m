@@ -27,7 +27,10 @@
     [super viewDidAppear:animated];
     
     // MARK: - 设置引导第一步
-    GuideCase *case1 = [XXWhatsNewGuide giveMeACaseWithKey:@"13"];
+    GuideCase *case1 = [XXWhatsNewGuide giveMeACaseWithKey:@"32"];
+    //设置蒙版透明度
+    case1.maskAlpha = 0.75;
+    
     //指定某个view进行高亮
     GuideView *case1_gv1 = [case1 addViewByCloneView:self.imgView1];
     //在引导蒙板上添加视图
@@ -43,7 +46,8 @@
     GuideView *case1_gv3 = [case1 addView:case1_btn];
     
     // MARK: - 设置引导第二步
-    GuideCase *case2 = [XXWhatsNewGuide giveMeACaseWithKey:@"14"];
+    GuideCase *case2 = [XXWhatsNewGuide giveMeACaseWithKey:@"33"];
+    case2.maskAlpha = 0.75;
     
     GuideView *case2_gv1 = [case2 addViewByCloneView:self.imgView1];
     //指定区域进行高亮
@@ -60,9 +64,11 @@
     
     // MARK: - 设置引导动作
     //点击下一步
-    [case1_gv3 addActionForNextCase:case2];
+//    [case1_gv3 addActionForNextCase:case2];
+    [case1 addFullScreenActionForNextCase:case2];
     //点击消失
-    [case2_gv3 addActionForDismiss];
+//    [case2_gv3 addActionForDismiss];
+    [case2 addFullScreenActionForDismiss];
     
     // MARK: - 显示引导
     [case1 show];
